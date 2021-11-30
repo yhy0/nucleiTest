@@ -64,20 +64,23 @@ func Nuclei(target string, outputWriter *testutils.MockOutputWriter) {
 
 	defaultOpts.Validate = true
 	defaultOpts.UpdateTemplates = true
-
-	// 排除的标记列表
-	defaultOpts.ExcludeTags = goflags.NormalizedStringSlice{"wpfuzz", "psfuzz", "fuzz", "dos", "misc"}
+	defaultOpts.Debug = true
+	defaultOpts.Verbose = true
+	defaultOpts.EnableProgressBar = true
 
 	home, _ := os.UserHomeDir()
 
 	// 全部扫描
 	templatesRootPath := path.Join(home, "nuclei-templates")
-	defaultOpts.Templates = goflags.StringSlice{
-		//"misconfiguration/springboot/",
+	defaultOpts.Templates = goflags.StringSlice {
+		//"miscellaneous/apple-app-site-association.yaml",
+		//"miscellaneous/aws-ecs-container-agent-tasks.yaml",
 		templatesRootPath,
 	}
 
-	defaultOpts.ExcludeTags = config.ReadIgnoreFile().Tags
+	// 排除的标记列表 这里不使用.nuclei-ignore文件来排除，直接在这里指定
+	defaultOpts.ExcludeTags = goflags.NormalizedStringSlice{"dos", "misc"}
+	//defaultOpts.ExcludeTags = config.ReadIgnoreFile().Tags
 
 	interactOpts := interactsh.NewDefaultOptions(outputWriter, reportingClient, mockProgress)
 	interactClient, err := interactsh.New(interactOpts)
@@ -422,13 +425,13 @@ func Setup() {
 		fmt.Println("Create ", configDir)
 	}
 	// 创建 .nuclei-ignore
-	data, err := client.GetLatestIgnoreFile()
-	if err != nil {
-		fmt.Errorf(err.Error())
-	}
-	if len(data) > 0 {
-		_ = ioutil.WriteFile(filepath.Join(configDir, nucleiIgnoreFile), data, 0644)
-	}
+	//data, err := client.GetLatestIgnoreFile()
+	//if err != nil {
+	//	fmt.Errorf(err.Error())
+	//}
+	//if len(data) > 0 {
+	//	_ = ioutil.WriteFile(filepath.Join(configDir, nucleiIgnoreFile), data, 0644)
+	//}
 
 	// 下载 poc 文件
 	versions, err := client.GetLatestNucleiTemplatesVersion()
